@@ -12,6 +12,7 @@ import java.util.Random;
 
 public class SberbankTest extends BaseTest {
     ArrayList<String> regions;
+    String regionName;
 
     @Before
     public void generateRegions() {
@@ -58,44 +59,68 @@ public class SberbankTest extends BaseTest {
 
 
     // Поиск опции выбора региона
-    public WebElement findRegionOption(String regionName) {
+    public WebElement findRegionOption() {
         WebElement findRegionOption = driver.findElement(By.xpath(".//u[contains(text(), '" + regionName + "')]"));
         return findRegionOption;
     }
 
+    // Генерирует случайный регион для теста
     public String generateRegion() {
         Random randomIndex = new Random();
         String regionName = regions.get(randomIndex.nextInt(regions.size()));
         return regionName;
     }
 
-
-    @Test
-    public void sberbank_test() {
-        PageFactory.initElements(driver, this);
-
+    // Выбор региона из выпадающего меню
+    public void pickRegion() {
         waitVisibility(regionArrow);
         regionArrow.click();
 
-        String regionName = generateRegion();
         regionInput.sendKeys(regionName);
 
-        waitVisibility(findRegionOption(regionName));
-        findRegionOption(regionName).click();
+        waitVisibility(findRegionOption());
+        findRegionOption().click();
+    }
 
+    // Проверка отображения выбранного региона
+    public void checkRegion() {
         waitVisibility(regionListName);
         Assert.assertTrue("Регион не равен заданному в тесте", regionListName.getText().contains(regionName));
+    }
 
+    // Прокрутка до футера сайта
+    public void scrollToFooter() {
         ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();",
                 footer);
-
         waitVisibility(footer);
+    }
 
+    // Проверка отображения иконок соцсетей
+    public void checkIcons() {
         Assert.assertTrue("Иконка Фейсбук невидима", facebookIcon.isDisplayed());
         Assert.assertTrue("Иконка Твиттер невидима", twitterIcon.isDisplayed());
         Assert.assertTrue("Иконка Ютуб невидима", youTubeIcon.isDisplayed());
         Assert.assertTrue("Иконка Инстаграм невидима", instagramIcon.isDisplayed());
         Assert.assertTrue("Иконка Вконтакте невидима", vkontakteIcon.isDisplayed());
         Assert.assertTrue("Иконка Одноклассники невидима", odnoklassnikiIcon.isDisplayed());
+    }
+
+    @Test
+    public void sberbank_test() {
+        PageFactory.initElements(driver, this);
+
+        // Генерация случайного имени региона
+        regionName = generateRegion();
+
+        // Выбор региона из выпадающего меню
+        pickRegion();
+        // Проверка отображения выбранного региона
+        checkRegion();
+
+        // Прокрутка до футера сайта
+        scrollToFooter();
+
+        // Проверка отображения иконок соцсетей
+        checkIcons();
     }
 }
